@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.springJourney.config.MyAutoConfiguration
+com.springJourney.config.MyAutoConfiguration,\
+com.springJourney.config.AutoConfig
