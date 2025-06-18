@@ -1,9 +1,12 @@
 package com.springJourney;
 
-import com.springJourney.reflect.service.Hello;
-import com.springJourney.reflect.service.HelloImpl;
-import com.springJourney.reflect.service.MyHandler;
+import com.springJourney.reflect.service.cjLib.CjLibHello;
+import com.springJourney.reflect.service.cjLib.MyInterceptor;
+import com.springJourney.reflect.service.jdk.JdkHello;
+import com.springJourney.reflect.service.jdk.JdkHelloImpl;
+import com.springJourney.reflect.service.jdk.MyHandler;
 import org.junit.jupiter.api.Test;
+import org.springframework.cglib.proxy.Enhancer;
 
 import java.lang.reflect.Proxy;
 
@@ -20,12 +23,29 @@ public class ReflectTest {
      */
     @Test
     public void jdkProxy() {
-        Hello target = new HelloImpl();
-        Hello proxy = (Hello) Proxy.newProxyInstance(
+        JdkHello target = new JdkHelloImpl();
+        JdkHello proxy = (JdkHello) Proxy.newProxyInstance(
                 target.getClass().getClassLoader(),//获取目标类的类加载器
                 target.getClass().getInterfaces(),//获取目标对象（HelloImpl）实现的所有接口
                 new MyHandler(target)//自定义处理器
         );
+        proxy.sayHello();
+    }
+
+    /**
+     * 含义：CGLIB（Code Generation Library）是一种基于字节码操作的第三方库，通过生成目标类的子类来实现动态代理，无需目标类实现接口。
+     * 核心组件：
+     * net.sf.cglib.proxy.Enhancer：用于生成代理类。
+     * MethodInterceptor：定义拦截逻辑，处理方法调用。
+     * 工作原理：CGLIB 动态生成目标类的子类，重写目标方法，调用委托给 MethodInterceptor 的 intercept 方法。
+     * 要求：目标类不能是 final 类，方法不能是 final 或 private（因为需要继承和重写）。
+     */
+    @Test
+    public void cjLibProxy() {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(CjLibHello.class);
+        enhancer.setCallback(new MyInterceptor(new CjLibHello()));
+        CjLibHello proxy = (CjLibHello) enhancer.create();
         proxy.sayHello();
     }
 }
