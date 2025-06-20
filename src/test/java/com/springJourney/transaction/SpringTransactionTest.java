@@ -1,15 +1,11 @@
-package com.springJourney;
+package com.springJourney.transaction;
 
 import com.springJourney.transaction.config.TransactionConfig;
-import com.springJourney.transaction.service.SecondaryService;
 import com.springJourney.transaction.service.TransactionService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = TransactionConfig.class)
 public class SpringTransactionTest {
 

@@ -1,52 +1,51 @@
 package com.springJourney.transaction.dao;
 
+import com.springJourney.transaction.config.TransactionContextHolder;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 一个简单的“内存数据库”模拟，支持快照和恢复，用于模拟事务隔离与回滚。
- */
 public class InMemoryDatabase {
+    private final List<String> records = new ArrayList<>();
+    private final List<OperationLog> opLogs = new ArrayList<>();
 
     /**
-     * 当前生效的数据列表。
-     */
-    private List<String> records = new ArrayList<>();
-
-    /**
-     * 完全替换当前数据库状态，用于事务切换。
-     */
-    public void setRecords(List<String> newRecords) {
-        this.records = newRecords;
-    }
-
-    /**
-     * 向“表”中添加一条记录。
+     * 添加记录，并记录操作日志（包括是否来自新事务）
      */
     public void addRecord(String record) {
-        System.out.println("数据库添加记录：" + record);
+        boolean isFromNewTransaction = TransactionContextHolder.isNewTransaction();
+        System.out.println("数据库插入记录：" + record + " 来自新事务：" + isFromNewTransaction);
         records.add(record);
+        opLogs.add(new OperationLog(OperationLog.OperationType.INSERT, record, isFromNewTransaction));
     }
 
     /**
-     * 获取当前所有记录的副本（外部只读使用）。
+     * 获取当前数据库记录
      */
     public List<String> getRecords() {
         return new ArrayList<>(records);
     }
 
     /**
-     * 创建当前状态的快照，用于之后的回滚。
+     * 回滚操作：如果是主事务回滚（isNewTransaction = false），则回滚所有；如果是子事务回滚（isNewTransaction = true），则只回滚来自子事务的操作。
      */
-    public List<String> snapshot() {
-        return new ArrayList<>(records);
+    public void rollback(boolean isNewTransaction) {
+        System.out.println("开始回滚 → 仅回滚新事务操作？" + isNewTransaction);
+        for (int i = opLogs.size() - 1; i >= 0; i--) {
+            OperationLog log = opLogs.get(i);
+            // 回滚条件：主事务回滚全部，子事务只回滚来自新事务的
+            if (log.getType() == OperationLog.OperationType.INSERT &&
+                    (isNewTransaction == log.isFromNewTransaction())) {
+                records.remove(log.getRecord());
+                opLogs.remove(i);
+            }
+        }
     }
 
     /**
-     * 将数据库状态恢复到指定快照。
+     * 提交成功的新事务操作，从日志中移除，避免被主事务回滚
      */
-    public void restore(List<String> snapshot) {
-        System.out.println("数据库恢复快照：" + snapshot);
-        this.records = new ArrayList<>(snapshot);
+    public void clearNewTransactionLogs() {
+        opLogs.removeIf(OperationLog::isFromNewTransaction);
     }
 }
