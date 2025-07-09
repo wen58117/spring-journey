@@ -23,6 +23,7 @@ public class BeanLifecycleTest {
 /**
  * 🟢 启动容器
  * 1️⃣ MyBean 构造方法调用                            ← 实例化
+ * 💉 属性注入（@Autowired/@Value/@Resource）         ← 依赖注入阶段（populateBean）
  * 🔁 BeanPostProcessor.beforeInitialization 被调用  ← 初始化前处理器
  * 2️⃣ @PostConstruct 调用                           ← 初始化步骤1
  * 3️⃣ InitializingBean.afterPropertiesSet 调用       ← 初始化步骤2
