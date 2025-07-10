@@ -1,33 +1,33 @@
 package com.springJourney.mock;
 
+import com.springJourney.mock.config.MockConfig;
 import com.springJourney.mock.service.*;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = MockConfig.class)
 public class MyServiceTest {
 
-    @Mock
+    @MockBean
     private Dependency1 dependency1;
 
-    @Mock
+    @MockBean
     private Dependency2 dependency2;
 
-    @InjectMocks
+    @Autowired
     private AutowiredTestService autowiredTestService;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.openMocks(this); // 初始化 Mockito 注解
-    }
 
     @Test
     public void testFetchData() throws IOException {
